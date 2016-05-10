@@ -1,25 +1,24 @@
 <?php
 
-$ENDPOINT = "https://safaricom.co.ke/mpesa_online/lnmo_checkout_server.php?wsdl";
-$CALLBACK_URL = "http://crackthecode.co.ke/gizmopay/MPESA/processcheckout.php";
-$CALL_BACK_METHOD = "POST";
+require_once 'dotenv.php';
+// echo $_ENV['CALLBACK_URL'];
 
-$MERCHENTS_ID = $PAYBILL_NO;
+$MERCHANT_ID = $_ENV['PAYBILL_NO'];
 $MERCHANT_TRANSACTION_ID = generateRandomString();
 
-$PASSWORD_ENCRYPT = base64_encode(hash("sha256", $MERCHANTS_ID.$PASSKEY.$TIMESTAMP));
+$TIMESTAMP = date("Y-m-d H:i:s",time());
+$PASSWORD_ENCRYPT = base64_encode(hash("sha256", $MERCHANT_ID.$_ENV['PASSKEY'].$TIMESTAMP));
 $PASSWORD = strtoupper($PASSWORD_ENCRYPT);
 
-$TIMESTAMP = date("Y-m-d H:i:s",time());
-
 $AMOUNT = $_POST['amount'];
-$NUMBER = $_POST['number']; //format 25470000
+$NUMBER = $_POST['phone_number']; // format 254712345678
+$PRODUCT_ID = $_POST['product_id'];
 
 $body = '<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="tns:ns" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
     <soapenv:Header>
         <tns:CheckOutHeader>
-            <MERCHANT_ID>'.$PAYBILL_NO.'</MERCHANT_ID>
-            <PASSWORD>'.$TRANSACTION_PASSWORD.'</PASSWORD>
+            <MERCHANT_ID>'.$MERCHANT_ID.'</MERCHANT_ID>
+            <PASSWORD>'.$ENV['TRANSACTION_PASSWORD'].'</PASSWORD>
             <TIMESTAMP>'.$TIMESTAMP.'</TIMESTAMP>
         </tns:CheckOutHeader>
     </soapenv:Header>
@@ -30,17 +29,17 @@ $body = '<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         <AMOUNT>'.$AMOUNT.'</AMOUNT>
         <MSISDN>'.$NUMBER.'</MSISDN>
         <ENC_PARAMS></ENC_PARAMS>
-        <CALL_BACK_URL>'.$CALLBACK_URL.'</CALL_BACK_URL>
-        <CALL_BACK_METHOD>'.$CALL_BACK_METHOD.'</CALL_BACK_METHOD>
+        <CALL_BACK_URL>'.$_ENV['CALLBACK_URL'].'</CALL_BACK_URL>
+        <CALL_BACK_METHOD>'.$_ENV['CALL_BACK_METHOD'].'</CALL_BACK_METHOD>
         <TIMESTAMP>'.$TIMESTAMP.'</TIMESTAMP>
         </tns:processCheckOutRequest>
     </soapenv:Body>
 </soapenv:Envelope>'; /// Your SOAP XML needs to be in this variable
 
 try{
-
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $ENDPOINT);
+
+    curl_setopt($ch, CURLOPT_URL, $_ENV['ENDPOINT']);
 	curl_setopt($ch, CURLOPT_HEADER, 0);
 	curl_setopt($ch, CURLOPT_VERBOSE, '0');
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -59,8 +58,9 @@ try{
 
 	print_r("To complete this transaction, enter your Bonga PIN on your handset. if you don't have one dial *126*5# for instructions ");
 }
-catch(Exception $ex){
-		echo $ex;
+catch(Exception $ex)
+{
+	echo $ex;
 }
 
 function generateRandomString()
