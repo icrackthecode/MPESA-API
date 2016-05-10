@@ -1,15 +1,20 @@
 <?php
 
+require_once 'dotenv.php';
+// echo $_ENV['CALLBACK_URL'];
+
+$MERCHANT_ID = $_ENV['PAYBILL_NO'];
 $MERCHANT_TRANSACTION_ID = generateRandomString();
-$PASSWORD_ENCRYPT = base64_encode(hash("sha256", $MERCHANTS_ID.$PASSKEY.$TIMESTAMP));
+
+$TIMESTAMP = date("Y-m-d H:i:s", time());
+$PASSWORD_ENCRYPT = base64_encode(hash("sha256", $MERCHANT_ID.$_ENV['PASSKEY'].$TIMESTAMP));
 $PASSWORD = strtoupper($PASSWORD_ENCRYPT);
-$TIMESTAMP = date("Y-m-d H:i:s",time());
 
 $body = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
 xmlns:tns="tns:ns">
 	<soapenv:Header>
 		<tns:CheckOutHeader>
-			<MERCHANT_ID>'.$PAYBILL_NO.'</MERCHANT_ID>
+			<MERCHANT_ID>'.$MERCHANT_ID.'</MERCHANT_ID>
 			<PASSWORD>ZTcxY2M3M2U1ZDM1ZGEyZTRiN2UyNGUyNDk0NGQwOTVkMzgzOTNmN2UzOTEzN2RlNDE1N2M0ZjViNDIzMWU0Yw==</PASSWORD>
 			<TIMESTAMP>'.$TIMESTAMP.'</TIMESTAMP>
 		</tns:CheckOutHeader>
@@ -24,17 +29,14 @@ xmlns:tns="tns:ns">
 	</soapenv:Body>
 </soapenv:Envelope>'; /// Your SOAP XML needs to be in this variable
 
-
 try {
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $ENDPOINT);
+
+	curl_setopt($ch, CURLOPT_URL, $_ENV['ENDPOINT']);
 	curl_setopt($ch, CURLOPT_HEADER, 0);
-
-
 	curl_setopt($ch, CURLOPT_VERBOSE, '0');
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, '0');
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, '0');
 
@@ -53,7 +55,8 @@ catch (SoapFault $fault)
 	echo $fault;
 }
 
-function generateRandomString() {
+function generateRandomString()
+{
 	$length = 10;
 	$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	$charactersLength = strlen($characters);
