@@ -15,7 +15,7 @@ while(!feof($ENV_FILE)) {
         $ENV_VALUE = $META_DATA[1];
 
         // Put the content of the file into ENV
-        $quotations = array('\"', '\'');
+        $quotations = array('\"', '\'', ' ');
         $_ENV[$ENV_PROP] = str_replace($quotations, '', $ENV_VALUE);
         // echo $_ENV[$ENV_PROP];
     }
