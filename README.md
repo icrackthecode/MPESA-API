@@ -2,7 +2,7 @@
 
 PHP implementation of MPESA checkout API. Simple for even the non techies.
 
-__TRY OUT__ A sample of the checkout process [HERE](http://crackthecode.co.ke/MPESA/sampleCheckout.php)
+__TRY OUT__ A sample of the checkout process [HERE](https://mpesa-checkout.herokuapp.com/)
 
 The `$PASSWORD` must be generate using the following approach:
 
